@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FunnyMaps.Server.Models
 {
@@ -6,8 +7,10 @@ namespace FunnyMaps.Server.Models
     {
         [Key]
         public int JokeId { get; set; }
-        public long Latitude { get; set; }
-        public long Longitude { get; set; }
+        [Column(TypeName = "decimal(18,11)")]
+        public decimal Latitude { get; set; }
+        [Column(TypeName = "decimal(18,11)")]
+        public decimal Longitude { get; set; }
         public string Place { get; set; } = null!;
         public Joke Joke { get; set; }
     }
