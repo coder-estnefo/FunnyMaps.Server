@@ -25,11 +25,11 @@ namespace FunnyMaps.Server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserRequest request)
+        public async Task<ActionResult> Login(UserRequest request)
         {
             string token = await _authService.Login(request);
 
-            return Ok(token);
+            return Ok(new {token});
         }
     }
 }
