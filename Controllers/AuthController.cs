@@ -17,23 +17,17 @@ namespace FunnyMaps.Server.Controllers
 
         [HttpPost("register")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult> Register(UserRequest user)
+        public async Task<ActionResult> Register(UserRequest request)
         {
-            var newUser = await _authService.Register(user);
-            if (newUser == null)
-            {
-                return BadRequest("User not created");
-            }
+            var user = await _authService.Register(request);
 
-            var message = "User created";
-
-            return Ok(new { message });
+            return Ok(user);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(string username, string password)
+        public async Task<ActionResult<string>> Login(UserRequest request)
         {
-            string token = await _authService.Login(username, password);
+            string token = await _authService.Login(request);
 
             return Ok(token);
         }

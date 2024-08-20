@@ -6,10 +6,8 @@ namespace FunnyMaps.Server.Services.AuthService
 {
     public interface IAuthService
     {
-        Task<UserResponse> Register(UserRequest user);
-        Task<string> Login(string username, string password);
-        abstract void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
-        bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+        Task<UserResponse> Register(UserRequest request);
+        Task<string> Login(UserRequest request);
         string CreateToken(User user);
     }
 }

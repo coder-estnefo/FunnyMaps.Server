@@ -4,6 +4,7 @@ using FunnyMaps.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunnyMaps.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240820181824_UserUpdate")]
+    partial class UserUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,6 +83,7 @@ namespace FunnyMaps.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -163,14 +166,14 @@ namespace FunnyMaps.Server.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "ee0065a6-1cfa-423d-aa62-ffe349147248",
+                            ConcurrencyStamp = "4f28795b-1016-4c09-9f54-074d864664fc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "5db794b2-f0c6-4a0a-aed8-9748eb24a368",
+                            ConcurrencyStamp = "e38e0ff1-325e-425b-abb8-95396814ba00",
                             Name = "User",
                             NormalizedName = "USER"
                         });

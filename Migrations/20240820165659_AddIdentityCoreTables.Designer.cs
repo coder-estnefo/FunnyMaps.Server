@@ -4,6 +4,7 @@ using FunnyMaps.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FunnyMaps.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240820165659_AddIdentityCoreTables")]
+    partial class AddIdentityCoreTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,6 +83,7 @@ namespace FunnyMaps.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -100,6 +103,10 @@ namespace FunnyMaps.Server.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -163,14 +170,14 @@ namespace FunnyMaps.Server.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "ee0065a6-1cfa-423d-aa62-ffe349147248",
+                            ConcurrencyStamp = "5502d7fa-52d7-40ea-b1b3-8b7fa0bf63e6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "5db794b2-f0c6-4a0a-aed8-9748eb24a368",
+                            ConcurrencyStamp = "05eeaa54-6e59-47c3-a810-fdb434d4d89a",
                             Name = "User",
                             NormalizedName = "USER"
                         });

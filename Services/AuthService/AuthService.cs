@@ -3,6 +3,7 @@ using FunnyMaps.Server.Exceptions;
 using FunnyMaps.Server.Models;
 using FunnyMaps.Server.Requests;
 using FunnyMaps.Server.Response;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -16,33 +17,16 @@ namespace FunnyMaps.Server.Services.AuthService
 {
     public class AuthService : IAuthService
     {
-        private readonly DataContext _db;
+        private readonly UserManager<User> _userManager;
+        private readonly ILogger<AuthService> _logger;
         private readonly IConfiguration _configuration;
 
-        public AuthService(DataContext db, IConfiguration configuration)
+        public AuthService(UserManager<User> userManager, IConfiguration configuration)
         {
-            _db = db;
+            _userManager = userManager;
             _configuration = configuration;
         }
 
-        public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            }
-        }
-
-
-        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
-            }
-        }
         public string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>
@@ -65,51 +49,47 @@ namespace FunnyMaps.Server.Services.AuthService
             return jwt;
         }
 
-        public async Task<UserResponse> Register(UserRequest user)
+        public async Task<UserResponse> Register(UserRequest request)
         {
-            var _user = _db.Users.FirstOrDefault(u => u.Email == user.Email);
+            var user = request.ToUser(request);
 
-            if (_user != null)
+            var userResponse = await _userManager.CreateAsync(user,request.Password);
+
+            if (!userResponse.Succeeded)
             {
-                throw new UserExistsException("User already exists");
+                var error = userResponse.Errors.FirstOrDefault();
+                throw new Exception(error?.Description);
             }
 
-            CreatePasswordHash(user.Password, out byte[] passwordHash,
-                out byte[] passwordSalt);
+           var roleResponse = await _userManager.AddToRoleAsync(user, ApplicationRole.User);
 
-            var newUser = new User
+            if (!roleResponse.Succeeded)
             {
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                Email = user.Email,
-            };
+                var error = roleResponse.Errors.FirstOrDefault();
+                throw new Exception(error?.Description);
+            }
 
-
-            var result = await _db.Users.AddAsync(newUser);
-            _db.SaveChanges();
-
-            return new UserResponse(result.Entity);
+            return new UserResponse(user);
         }
 
-        public async Task<string> Login([FromQuery] string email, [FromQuery] string password)
+        public async Task<string> Login(UserRequest request)
+
         {
-            var user = _db.Users.FirstOrDefault(u => u.Email == email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user != null)
             {
-                var isPasswordValid = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
-                if (isPasswordValid)
+                if (await _userManager.CheckPasswordAsync(user, request.Password))
                 {
                     var token = CreateToken(user);
                     return token;
                 }
-                else
-                {
-                    throw new InvalidLoginDetailsException("Invalid Password");
-                }
+
+                throw new Exception("Invalid Password!");
+                
             }
 
-            throw new InvalidLoginDetailsException("Invalid Login Details");
+            throw new Exception("Invalid User!");
         }
     }
 }

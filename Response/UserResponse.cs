@@ -6,7 +6,7 @@ namespace FunnyMaps.Server.Response
 {
     public class UserResponse
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public string Id { get; set; } = null!;
         public string Email { get; set; } = null!;
 
         public UserResponse(User user)

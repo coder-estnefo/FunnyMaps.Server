@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace FunnyMaps.Server.Models
 {
-    public class User
+    public class User : IdentityUser
     {
-        public Guid Id { get; set ; } = Guid.NewGuid();
-        public string Email { get; set; } = null!;
-        public byte[] PasswordHash { get; set; } = null!;
-        public byte[] PasswordSalt { get; set; } = null!;
-        //public List<Joke> Jokes { get; set; }
+        public List<Joke> Jokes { get; set; }
     }
 }

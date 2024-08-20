@@ -2,6 +2,7 @@
 using FunnyMaps.Server.Models;
 using FunnyMaps.Server.Requests;
 using FunnyMaps.Server.Response;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -11,73 +12,64 @@ namespace FunnyMaps.Server.Services.JokeService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DataContext _db;
+        private readonly UserManager<User> _userManager;
 
-        public JokeService(IHttpContextAccessor httpContextAccessor, DataContext db)
+        public JokeService(IHttpContextAccessor httpContextAccessor, DataContext db, UserManager<User> userManager)
         {
             _httpContextAccessor = httpContextAccessor;
             _db = db;
+            _userManager = userManager;
         }
 
         public async Task<JokeResponse> AddJoke(JokeRequest request)
         {
-            //if (_httpContextAccessor.HttpContext?.User != null)
+
+            var claims = _httpContextAccessor?.HttpContext?.User;
+            var email = claims?.FindFirstValue(ClaimTypes.Email);
+
+            if (email != null)
             {
-                var claims = _httpContextAccessor.HttpContext.User;
-                var email = claims.FindFirstValue(ClaimTypes.Email);
+                var user = await _userManager.FindByEmailAsync(email);
 
-                if (email != null)
+                if (user != null)
                 {
-                    var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-                    if (user != null)
+                    var location = new Location
                     {
-                        var location = new Location
-                        {
-                            Place = request.Location.Place,
-                            Longitude = request.Location.Longitude,
-                            Latitude = request.Location.Latitude,
-                        };
+                        Place = request.Location.Place,
+                        Longitude = request.Location.Longitude,
+                        Latitude = request.Location.Latitude,
+                    };
 
-                        var joke = new Joke()
-                        {
-                            Description = request.Description,
-                            Location = location,
-                            UserId = user.Id,
-                        };
+                    var joke = new Joke()
+                    {
+                        Description = request.Description,
+                        Location = location,
+                        User = user,
+                    };
 
-                        var response = await _db.Jokes.AddAsync(joke);
-                        await _db.SaveChangesAsync();
+                    var response = await _db.Jokes.AddAsync(joke);
+                    await _db.SaveChangesAsync();
 
-                        //return new JokeResponse()
-                        //{
-                        //    Id = response.Entity.Id,
-                        //    Description = response.Entity.Description,
-                        //    Location = response.Entity.Location,
-                        //};
+                    var locationRequest = new LocationResponse()
+                    {
+                        Latitude = request.Location.Latitude,
+                        Longitude = request.Location.Longitude,
+                        Place = request.Location.Place,
+                    };
 
-                        var locationRequest = new LocationResponse()
-                        {
-                            Latitude = request.Location.Latitude,
-                            Longitude = request.Location.Longitude,
-                            Place = request.Location.Place,
-                        };
+                    var jokeResponse = new JokeResponse()
+                    {
+                        Id = joke.Id,
+                        Description = joke.Description,
+                        Location = locationRequest,
+                    };
 
-                        var jokeResponse = new JokeResponse()
-                        {
-                            Id =joke.Id,
-                            Description = joke.Description,
-                            Location = locationRequest,
-                        };
-
-                        return jokeResponse;
-                    }
-
+                    return jokeResponse;
                 }
 
-                throw new Exception("Unable to add joke");
-
             }
-            
+
+            throw new Exception("Unable to add joke");
         }
 
         public async Task<List<JokeResponse>> GetJokesByLocation(string location)
