@@ -1,5 +1,6 @@
 ﻿
 using FunnyMaps.Server.Exceptions;
+using FunnyMaps.Server.Response;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -22,7 +23,8 @@ namespace FunnyMaps.Server
                     Status = (int)HttpStatusCode.Conflict,
                     Detail = e.Message,
                 };
-                
+
+                context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 await context.Response.WriteAsJsonAsync(details);
             }
 
@@ -33,21 +35,24 @@ namespace FunnyMaps.Server
                     Title = "Api Error",
                     Status = (int)HttpStatusCode.NotFound,
                     Detail = e.Message,
+                    
                 };
 
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 await context.Response.WriteAsJsonAsync(details);
             }
 
             catch (Exception e)
             {
-                var details = new ProblemDetails
+                var details = new ApiError
                 {
                     Title = "Api Error",
-                    Status = (int)context.Response.StatusCode,
+                    Status = (int)HttpStatusCode.BadRequest,
                     Detail = e.Message,
                     
                 };
 
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await context.Response.WriteAsJsonAsync(details);
             }
         }
