@@ -29,7 +29,7 @@ namespace FunnyMaps.Server.Controllers
         {
             string token = await _authService.Login(request);
 
-            return Ok(new {token});
+            return Ok(new { value = token});
         }
     }
 }
