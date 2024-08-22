@@ -85,11 +85,11 @@ namespace FunnyMaps.Server.Services.AuthService
                     return token;
                 }
 
-                throw new Exception("Invalid Password!");
+                throw new InvalidLoginDetailsException("Invalid Password!");
                 
             }
 
-            throw new Exception("Invalid User!");
+            throw new InvalidLoginDetailsException("Invalid User!");
         }
     }
 }
