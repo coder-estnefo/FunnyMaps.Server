@@ -44,7 +44,7 @@ namespace FunnyMaps.Server
 
             catch (Exception e)
             {
-                var details = new ProblemDetails
+                var details = new ApiError
                 {
                     Title = "Api Error",
                     Status = (int)HttpStatusCode.BadRequest,
