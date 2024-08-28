@@ -76,8 +76,10 @@ namespace FunnyMaps.Server.Services.JokeService
         {
             List<JokeResponse> jokes = new();
 
+            var locationArray = location.Split(" ");
+
             var _jokes = await _db.Jokes
-                .Where(j => j.Location.Place == location)
+                .Where(j => j.Location.Place.Contains(locationArray[0]) || j.Location.Place.Contains(location))
                 .Include(j => j.Location)
                 .ToListAsync();
 
